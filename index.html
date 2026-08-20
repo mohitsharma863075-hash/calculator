@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>WrongCalc · Wrong answers for fun</title>
+    <!-- Font & Icons (Font Awesome free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ---------- CSS Variables (Dark Premium) ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #0d0f14;
+            color: #f0f4fc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+            margin: 0;
+        }
+
+        :root {
+            --bg-primary: #0d0f14;
+            --bg-card: #171b22;
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --border-glass: rgba(255, 255, 255, 0.06);
+            --text-primary: #f0f4fc;
+            --text-secondary: #a3b1cc;
+            --accent: #b388ff;
+            --accent-glow: rgba(179, 136, 255, 0.3);
+            --gradient: linear-gradient(135deg, #b388ff, #7c4dff);
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+            --radius: 28px;
+            --radius-sm: 18px;
+            --transition: 0.25s ease;
+        }
+
+        /* ---------- Scroll & base ---------- */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 12px;
+        }
+
+        /* ---------- App container ---------- */
+        #app {
+            max-width: 540px;
+            width: 100%;
+            margin: 0 auto;
+            background: var(--bg-card);
+            backdrop-filter: blur(4px);
+            border-radius: var(--radius);
+            padding: 1.8rem 1.5rem 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-glass);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        /* header */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .logo {
+            display: flex;
+            align-items: baseline;
+            gap: 0.3rem;
+            font-weight: 700;
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .logo small {
+            font-size: 0.8rem;
+            font-weight: 400;
+            -webkit-text-fill-color: var(--text-secondary);
+            background: none;
+            color: var(--text-secondary);
+            margin-left: 0.2rem;
+        }
+        .badge-status {
+            background: rgba(255, 255, 255, 0.04);
+            padding: 0.35rem 1rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+        .badge-status.premium {
+            background: rgba(179, 136, 255, 0.15);
+            border-color: var(--accent);
+            color: #d4c2ff;
+        }
+        .tagline {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.2rem;
+            border-left: 3px solid var(--accent);
+            padding-left: 0.8rem;
+            font-weight: 400;
+        }
+        .disclaimer {
+            font-size: 0.7rem;
+            color: #7e8aa8;
+            background: rgba(255, 50, 50, 0.05);
+            padding: 0.4rem 0.8rem;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 70, 70, 0.08);
+        }
+
+        /* ---------- Calculator display ---------- */
+        .calc-display {
+            background: #0b0e12;
+            border-radius: var(--radius-sm);
+            padding: 1.4rem 1.2rem;
+            margin-bottom: 1.4rem;
+            border: 1px solid #262d36;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+            word-break: break-all;
+        }
+        .expression {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: #b8c7e6;
+            min-height: 2.4rem;
+            width: 100%;
+            text-align: right;
+        }
+        .wrong-answer {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #e6dfff;
+            letter-spacing: 0.5px;
+            margin-top: 0.3rem;
+            text-shadow: 0 0 12px rgba(179, 136, 255, 0.2);
+        }
+        .wrong-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #7a8aaa;
+            margin-top: 0.2rem;
+        }
+
+        /* ---------- Buttons grid ---------- */
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin: 1.2rem 0 0.8rem;
+        }
+        .calc-btn {
+            background: #1f2630;
+            border: none;
+            border-radius: 16px;
+            padding: 1rem 0.2rem;
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: #eef4ff;
+            transition: var(--transition);
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .calc-btn:active {
+            transform: scale(0.94);
+        }
+        .calc-btn.operator {
+            background: #2d3440;
+            color: #cbb5ff;
+        }
+        .calc-btn.func {
+            background: #2a313d;
+            color: #b0c2e0;
+        }
+        .calc-btn.equals {
+            background: var(--gradient);
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .calc-btn.span-two {
+            grid-column: span 2;
+        }
+
+        /* ---------- History panel ---------- */
+        .history-toggle {
+            margin: 0.8rem 0 0.4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history-toggle button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.3rem 0.6rem;
+            border-radius: 30px;
+            transition: var(--transition);
+        }
+        .history-toggle button:hover {
+            background: rgba(255,255,255,0.03);
+            color: #fff;
+        }
+        .history-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.2s;
+            opacity: 0;
+            background: #12171f;
+            border-radius: var(--radius-sm);
+            padding: 0 0.6rem;
+        }
+        .history-list.open {
+            max-height: 300px;
+            opacity: 1;
+            padding: 0.6rem;
+            overflow-y: auto;
+            margin-top: 0.4rem;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0.2rem;
+            border-bottom: 1px solid #242b36;
+            font-size: 0.85rem;
+            color: #c6d2ea;
+        }
+        .history-item .h-expr {
+            color: #9aacc9;
+        }
+        .history-item .h-wrong {
+            color: #d4c2ff;
+            font-weight: 500;
+        }
+        .history-empty {
+            color: #5f6f8a;
+            font-size: 0.8rem;
+            padding: 0.5rem 0;
+        }
+
+        /* ---------- Modal overlay ---------- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: #181e27;
+            max-width: 500px;
+            width: 100%;
+            border-radius: var(--radius);
+            padding: 2rem 1.8rem;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.9);
+            border: 1px solid #2a3340;
+            transform: scale(0.94) translateY(10px);
+            transition: transform 0.25s ease, opacity 0.25s;
+            opacity: 0;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+        .modal-close {
+            float: right;
+            background: transparent;
+            border: none;
+            color: #7f8fa8;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .modal-title {
+            font-size: 1.7rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+        .modal-sub {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 1.8rem;
+        }
+
+        /* plans */
+        .plan-cards {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+        }
+        .plan-card {
+            flex: 1 1 180px;
+            background: #10151d;
+            border-radius: var(--radius-sm);
+            padding: 1.4rem 1rem;
+            border: 1px solid #29313e;
+            transition: var(--transition);
+            text-align: center;
+        }
+        .plan-card:hover {
+            border-color: var(--accent);
+            background: #151c27;
+        }
+        .plan-card .price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .plan-card .period {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+        .plan-card .features {
+            list-style: none;
+            font-size: 0.8rem;
+            color: #b3c2df;
+            margin: 0.8rem 0;
+            padding: 0;
+        }
+        .plan-card .features li {
+            padding: 0.2rem 0;
+        }
+        .plan-card .badge-best {
+            background: var(--gradient);
+            font-size: 0.6rem;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            display: inline-block;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
+            color: #0d0f14;
+        }
+        .btn-primary {
+            background: var(--gradient);
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            color: #0b0e14;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 16px rgba(179, 136, 255, 0.2);
+        }
+        .btn-primary:hover {
+            transform: scale(1.01);
+            box-shadow: 0 8px 28px rgba(179, 136, 255, 0.4);
+        }
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid #3e485a;
+            color: #cfddf5;
+            padding: 0.6rem 1.2rem;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.04);
+            border-color: #7a8aaa;
+        }
+        .payment-method-grid {
+            display: flex;
+            gap: 1rem;
+            margin: 1.2rem 0;
+        }
+        .pm-option {
+            flex: 1;
+            background: #10151d;
+            padding: 1.2rem 0.5rem;
+            border-radius: var(--radius-sm);
+            border: 2px solid #262f3d;
+            text-align: center;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .pm-option.selected {
+            border-color: var(--accent);
+            background: #1a2130;
+            box-shadow: 0 0 20px rgba(179, 136, 255, 0.1);
+        }
+        .pm-option i {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+        .form-group {
+            margin: 1rem 0;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.2rem;
+        }
+        .form-group input {
+            width: 100%;
+            background: #0d1118;
+            border: 1px solid #2c3545;
+            border-radius: 14px;
+            padding: 0.8rem 1rem;
+            color: #fff;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(179, 136, 255, 0.2);
+        }
+        .error-text {
+            color: #ff7a7a;
+            font-size: 0.75rem;
+            margin-top: 0.2rem;
+        }
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid var(--accent);
+            animation: spin 0.8s linear infinite;
+            margin: 1rem auto;
+        }
+        /* Fullscreen button */
+.fullscreen-toggle {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    margin-left: 0.5rem;
+}
+
+.fullscreen-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transform: scale(1.05);
+}
+
+.fullscreen-toggle:active {
+    transform: scale(0.95);
+}
+
+/* Fullscreen mode ke liye app container */
+#app:-webkit-full-screen {
+    max-width: 100%;
+    border-radius: 0;
+    padding: 2rem;
+}
+
+#app:-moz-full-screen {
+    max-width: 100%;
+    border-radius: 0;
+    padding: 2rem;
+}
+
+#app:fullscreen {
+    max-width: 100%;
+    border-radius: 0;
+    padding: 2rem;
+}
+/* Fullscreen mode mein body background */
+body:fullscreen {
+    background: #0d0f14;
+}
+
+body:-webkit-full-screen {
+    background: #0d0f14;
+}
+
+/* Fullscreen mode mein app ka max-width hatayein */
+#app:fullscreen {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+}
+
+#app:-webkit-full-screen {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .success-check {
+            font-size: 4rem;
+            color: #69db7c;
+            text-align: center;
+        }
+        .flex-btns {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mt-1 { margin-top: 0.6rem; }
+        .mt-2 { margin-top: 1.2rem; }
+
+        /* mobile tweaks */
+        @media (max-width: 480px) {
+            #app { padding: 1.2rem; }
+            .calc-grid { gap: 8px; }
+            .calc-btn { font-size: 1.2rem; padding: 0.8rem 0.2rem; }
+            .logo { font-size: 1.4rem; }
+        }
+        /* dev reset */
+        .dev-reset {
+            text-align: right;
+            font-size: 0.6rem;
+            color: #3b455a;
+            margin-top: 0.5rem;
+            cursor: pointer;
+            opacity: 0.3;
+        }
+        .dev-reset:hover { opacity: 0.8; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <!-- header -->
+    <div class="app-header">
+        <div class="logo">calculator <small>™</small></div>
+        <span class="badge-status" id="statusBadge"><i class="fas fa-lock"></i> FREE MODE</span>
+    </div>
+<button id="fullscreenBtn" class="fullscreen-toggle" aria-label="Toggle full screen">
+    <i class="fas fa-expand"></i>
+</button>
+    <!-- display -->
+    <div class="calc-display">
+        <div class="expression" id="expressionDisplay">0</div>
+        <div class="wrong-label" id="wrongLabel">WRONG ANSWER</div>
+        <div class="wrong-answer" id="answerDisplay">—</div>
+    </div>
+
+    <!-- buttons -->
+    <div class="calc-grid">
+        <button class="calc-btn func" data-action="clear">AC</button>
+        <button class="calc-btn func" data-action="delete">DEL</button>
+        <button class="calc-btn func" data-action="percent">%</button>
+        <button class="calc-btn operator" data-action="operator" data-value="÷">÷</button>
+
+        <button class="calc-btn" data-action="digit" data-value="7">7</button>
+        <button class="calc-btn" data-action="digit" data-value="8">8</button>
+        <button class="calc-btn" data-action="digit" data-value="9">9</button>
+        <button class="calc-btn operator" data-action="operator" data-value="×">×</button>
+
+        <button class="calc-btn" data-action="digit" data-value="4">4</button>
+        <button class="calc-btn" data-action="digit" data-value="5">5</button>
+        <button class="calc-btn" data-action="digit" data-value="6">6</button>
+        <button class="calc-btn operator" data-action="operator" data-value="−">−</button>
+
+        <button class="calc-btn" data-action="digit" data-value="1">1</button>
+        <button class="calc-btn" data-action="digit" data-value="2">2</button>
+        <button class="calc-btn" data-action="digit" data-value="3">3</button>
+        <button class="calc-btn operator" data-action="operator" data-value="+">+</button>
+
+        <button class="calc-btn span-two" data-action="digit" data-value="0">0</button>
+        <button class="calc-btn" data-action="digit" data-value=".">.</button>
+        <button class="calc-btn equals" data-action="equals">=</button>
+    </div>
+
+    <!-- history -->
+    <div class="history-toggle">
+        <button id="historyToggle"><i class="fas fa-clock"></i> History</button>
+        <button id="clearHistoryBtn" style="font-size:0.7rem;color:#6a7b9a;"><i class="fas fa-trash-alt"></i> Clear</button>
+    </div>
+    <div class="history-list" id="historyList">
+        <div class="history-empty">No calculations yet.</div>
+    </div>
+
+    <!-- dev reset -->
+    <div class="dev-reset" id="devReset">⏻ reset demo (dev)</div>
+</div>
+
+<!-- MODAL OVERLAY -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content" id="modalContent">
+        <!-- dynamic content rendered by js -->
+    </div>
+</div>
+
+<script>
+    // ---------- STATE ----------
+    const appState = {
+        calculationCount: 0,
+        isSubscribed: false,
+        selectedPlan: null,
+        selectedPrice: 0,
+        paymentMethod: null,
+        paymentStatus: 'pending',
+        history: [],
+        currentExpression: '',
+        currentDisplay: '0',
+        justEvaluated: false,
+    };
+
+    // DOM refs
+    const exprDisplay = document.getElementById('expressionDisplay');
+    const ansDisplay = document.getElementById('answerDisplay');
+    const badge = document.getElementById('statusBadge');
+    const historyList = document.getElementById('historyList');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalContent = document.getElementById('modalContent');
+
+    // ---------- HELPERS ----------
+    function saveState() {
+        localStorage.setItem('wrongcalc_state', JSON.stringify({
+            calculationCount: appState.calculationCount,
+            isSubscribed: appState.isSubscribed,
+            selectedPlan: appState.selectedPlan,
+            selectedPrice: appState.selectedPrice,
+            paymentStatus: appState.paymentStatus,
+            history: appState.history,
+            subscriptionDate: appState.subscriptionDate || new Date().toISOString()
+        }));
+    }
+
+    function loadState() {
+        try {
+            const raw = localStorage.getItem('wrongcalc_state');
+            if (!raw) return;
+            const data = JSON.parse(raw);
+            appState.calculationCount = data.calculationCount || 0;
+            appState.isSubscribed = data.isSubscribed || false;
+            appState.selectedPlan = data.selectedPlan || null;
+            appState.selectedPrice = data.selectedPrice || 0;
+            appState.paymentStatus = data.paymentStatus || 'pending';
+            appState.history = data.history || [];
+            if (appState.isSubscribed) updatePremiumUI();
+        } catch (e) {}
+    }
+
+    function updatePremiumUI() {
+        if (appState.isSubscribed) {
+            badge.innerHTML = '<i class="fas fa-gem"></i> PREMIUM';
+            badge.classList.add('premium');
+        } else {
+            badge.innerHTML = '<i class="fas fa-lock"></i> FREE MODE';
+            badge.classList.remove('premium');
+        }
+        renderHistory();
+    }
+
+    // ---------- CALCULATOR ENGINE ----------
+    function calculateExpression(expr) {
+        // safe eval with replacements
+        let sanitized = expr.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+        // only allow digits, operators, ., %, ()
+        if (!/^[\d+\-*/.%() ]+$/.test(sanitized)) return NaN;
+        try {
+            // handle percentage: treat x% as x/100
+            const result = Function('"use strict"; return (' + sanitized + ')')();
+            return typeof result === 'number' && !isNaN(result) ? result : NaN;
+        } catch { return NaN; }
+    }
+
+    function generateWrongResult(correct) {
+        if (!isFinite(correct) || isNaN(correct)) return 42;
+        let wrong;
+        let attempts = 0;
+        do {
+            const offset = Math.floor(Math.random() * 21) - 10; // -10..10
+            wrong = correct + offset;
+            // add extra spice for decimals
+            if (Number.isInteger(correct) && Math.random() > 0.6) {
+                wrong = correct + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 5) + 2);
+            }
+            attempts++;
+            if (attempts > 30) break;
+        } while (wrong === correct || !isFinite(wrong));
+        // round to 4 decimals
+        return Math.round(wrong * 10000) / 10000;
+    }
+
+    function handleEquals() {
+        if (!appState.isSubscribed && appState.calculationCount >= 1) {
+            openSubscriptionModal();
+            return;
+        }
+        const expr = appState.currentExpression.trim() || '0';
+        if (!expr) return;
+        const correct = calculateExpression(expr);
+        if (isNaN(correct)) {
+            ansDisplay.textContent = 'Error';
+            return;
+        }
+        const wrong = generateWrongResult(correct);
+        ansDisplay.textContent = wrong;
+        // history
+        appState.history.push({ expression: expr, wrongAnswer: wrong });
+        if (!appState.isSubscribed) {
+            appState.calculationCount++;
+        }
+        saveState();
+        renderHistory();
+        updatePremiumUI();
+        appState.justEvaluated = true;
+    }
+
+    // ---------- UI UPDATE ----------
+    function updateDisplay() {
+        exprDisplay.textContent = appState.currentExpression || '0';
+        if (!appState.justEvaluated) {
+            // don't clear answer on digit if just evaluated? we clear on digit anyway
+        }
+    }
+
+    // ---------- MODAL RENDER ----------
+    function openSubscriptionModal() {
+        renderPlanSelection();
+        modalOverlay.classList.add('active');
+    }
+
+    function closeModal() {
+        modalOverlay.classList.remove('active');
+    }
+
+    function renderPlanSelection() {
+        modalContent.innerHTML = `
+            <button class="modal-close" id="modalCloseBtn">&times;</button>
+            <div class="modal-title">Unlock Unlimited Wrong Calculations 💎</div>
+            <div class="modal-sub">You've used your free calculation. Choose a plan to continue enjoying unlimited intentionally wrong answers.</div>
+            <div class="plan-cards">
+                <div class="plan-card">
+                    <div style="font-weight:600;font-size:1.2rem;">Monthly</div>
+                    <div class="price">₹99</div>
+                    <div class="period">per month</div>
+                    <ul class="features"><li>✓ Unlimited calculations</li><li>✓ Premium mode</li><li>✓ History</li></ul>
+                    <button class="btn-primary" data-plan="monthly" data-price="99">Subscribe Monthly</button>
+                </div>
+                <div class="plan-card">
+                    <div class="badge-best">BEST VALUE</div>
+                    <div style="font-weight:600;font-size:1.2rem;">Yearly</div>
+                    <div class="price">₹799</div>
+                    <div class="period">per year</div>
+                    <ul class="features"><li>✓ Unlimited calculations</li><li>✓ Premium mode</li><li>✓ History</li></ul>
+                    <button class="btn-primary" data-plan="yearly" data-price="799">Subscribe Yearly</button>
+                </div>
+            </div>
+            <div style="text-align:center;margin-top:0.4rem;"><button class="btn-secondary" id="modalBackToCalc">Cancel</button></div>
+        `;
+        // attach events
+        modalContent.querySelectorAll('[data-plan]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                appState.selectedPlan = btn.dataset.plan;
+                appState.selectedPrice = parseInt(btn.dataset.price);
+                renderPaymentMethod();
+            });
+        });
+        document.getElementById('modalCloseBtn')?.addEventListener('click', closeModal);
+        document.getElementById('modalBackToCalc')?.addEventListener('click', closeModal);
+    }
+
+    function renderPaymentMethod() {
+        const planLabel = appState.selectedPlan === 'monthly' ? 'Monthly Premium' : 'Yearly Premium';
+        const price = appState.selectedPrice;
+        modalContent.innerHTML = `
+            <button class="modal-close" id="modalCloseBtn">&times;</button>
+            <div class="modal-title">Complete Your Payment</div>
+            <div style="background:#10151d;padding:0.6rem 1rem;border-radius:16px;margin:0.4rem 0 1rem;">
+                <strong>${planLabel}</strong> — ₹${price} / ${appState.selectedPlan === 'monthly' ? 'month' : 'year'}
+            </div>
+            <div style="font-weight:500;margin:0.8rem 0 0.4rem;">Choose Payment Method</div>
+            <div class="payment-method-grid">
+                <div class="pm-option" data-method="card"><i class="fas fa-credit-card"></i> Card</div>
+                <div class="pm-option" data-method="upi"><i class="fas fa-mobile-alt"></i> UPI</div>
+            </div>
+            <div id="paymentFormContainer"></div>
+            <div class="flex-btns" style="margin-top:0.8rem;">
+                <button class="btn-secondary" id="pmBackBtn">← Back</button>
+                <button class="btn-secondary" id="pmCloseBtn">✕ Close</button>
+            </div>
+        `;
+        document.getElementById('modalCloseBtn')?.addEventListener('click', closeModal);
+        document.getElementById('pmCloseBtn')?.addEventListener('click', closeModal);
+        document.getElementById('pmBackBtn')?.addEventListener('click', renderPlanSelection);
+
+        // payment method selection
+        modalContent.querySelectorAll('.pm-option').forEach(el => {
+            el.addEventListener('click', () => {
+                modalContent.querySelectorAll('.pm-option').forEach(o => o.classList.remove('selected'));
+                el.classList.add('selected');
+                appState.paymentMethod = el.dataset.method;
+                renderPaymentForm(appState.paymentMethod);
+            });
+        });
+    }
+// ---------- FULL SCREEN TOGGLE ----------
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+const fullscreenIcon = fullscreenBtn?.querySelector('i');
+
+function toggleFullScreen() {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        // Enter full screen
+        const element = document.documentElement;
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen();
+        }
+    } else {
+        // Exit full screen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
+}
+
+function updateFullscreenButton() {
+    const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+    if (isFullscreen) {
+        fullscreenIcon.className = 'fas fa-compress';
+        fullscreenBtn.setAttribute('aria-label', 'Exit full screen');
+    } else {
+        fullscreenIcon.className = 'fas fa-expand';
+        fullscreenBtn.setAttribute('aria-label', 'Enter full screen');
+    }
+}
+
+// Event listeners
+fullscreenBtn?.addEventListener('click', toggleFullScreen);
+
+// Listen for fullscreen change events
+document.addEventListener('fullscreenchange', updateFullscreenButton);
+document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+document.addEventListener('mozfullscreenchange', updateFullscreenButton);
+document.addEventListener('MSFullscreenChange', updateFullscreenButton);
+
+// Keyboard shortcut: F11 key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'F11') {
+        e.preventDefault();
+        toggleFullScreen();
+    }
+});
+
+// Initialize button state
+updateFullscreenButton();
+    function renderPaymentForm(method) {
+        const container = document.getElementById('paymentFormContainer');
+        const price = appState.selectedPrice;
+        if (method === 'card') {
+            container.innerHTML = `
+                <div class="form-group"><label>Card Number</label><input type="text" id="cardNum" placeholder="1234 5678 9012 3456" maxlength="19"></div>
+                <div class="form-group"><label>Card Holder</label><input type="text" id="cardName" placeholder="Your Name"></div>
+                <div class="form-group" style="display:flex;gap:0.6rem;"><div style="flex:1"><label>Expiry</label><input type="text" id="cardExp" placeholder="MM/YY"></div><div style="flex:1"><label>CVV</label><input type="password" id="cardCvv" placeholder="***" maxlength="4"></div></div>
+                <div style="font-size:0.7rem;color:#7e8aaa;margin:-0.2rem 0 0.6rem;">🔒 Secure demo payment</div>
+                <button class="btn-primary" id="payNowBtn">Pay ₹${price}</button>
+                <div id="payError" class="error-text"></div>
+            `;
+            document.getElementById('payNowBtn').addEventListener('click', () => processPayment('card'));
+        } else if (method === 'upi') {
+            container.innerHTML = `
+                <div class="form-group"><label>UPI ID</label><input type="text" id="upiId" placeholder="example@upi"></div>
+                <div style="background:#10151d;border-radius:14px;padding:0.8rem;text-align:center;border:1px dashed #3a465a;margin:0.8rem 0;">
+                    <i class="fas fa-qrcode" style="font-size:2.4rem;color:#7a8aaa;"></i>
+                    <div style="font-size:0.7rem;color:#6b7d9a;">QR placeholder (production gateway)</div>
+                </div>
+                <button class="btn-primary" id="payNowBtn">Pay ₹${price}</button>
+                <div id="payError" class="error-text"></div>
+            `;
+            document.getElementById('payNowBtn').addEventListener('click', () => processPayment('upi'));
+        }
+    }
+
+    function processPayment(method) {
+        const errorEl = document.getElementById('payError');
+        if (!errorEl) return;
+        errorEl.textContent = '';
+        if (method === 'card') {
+            const num = document.getElementById('cardNum')?.value.trim();
+            const name = document.getElementById('cardName')?.value.trim();
+            const exp = document.getElementById('cardExp')?.value.trim();
+            const cvv = document.getElementById('cardCvv')?.value.trim();
+            if (!num || !name || !exp || !cvv) {
+                errorEl.textContent = 'Please fill all card fields.';
+                return;
+            }
+            if (!/^\d{4}\s?\d{4}\s?\d{4}\s?\d{4}$/.test(num.replace(/\s/g,''))) {
+                errorEl.textContent = 'Enter a valid card number (demo).';
+                return;
+            }
+        } else if (method === 'upi') {
+            const upi = document.getElementById('upiId')?.value.trim();
+            if (!upi || !upi.includes('@')) {
+                errorEl.textContent = 'Please enter a valid UPI ID (e.g., name@upi).';
+                return;
+            }
+        }
+        // show processing
+        showProcessing();
+    }
+
+    function showProcessing() {
+        modalContent.innerHTML = `
+            <div class="text-center" style="padding:2rem 0;">
+                <div class="spinner"></div>
+                <div style="font-size:1.2rem;font-weight:500;margin:0.8rem 0;">Processing Payment...</div>
+                <div style="color:var(--text-secondary);">Securely processing your payment...</div>
+            </div>
+        `;
+        // simulate success/failure after 2s
+        setTimeout(() => {
+            // 90% success
+            if (Math.random() < 0.9) {
+                paymentSuccess();
+            } else {
+                paymentFailure();
+            }
+        }, 2000);
+    }
+
+    function paymentSuccess() {
+        appState.isSubscribed = true;
+        appState.paymentStatus = 'success';
+        appState.subscriptionDate = new Date().toISOString();
+        saveState();
+        modalContent.innerHTML = `
+            <div class="text-center" style="padding:1rem 0;">
+                <div class="success-check">✓</div>
+                <div style="font-size:2rem;font-weight:700;">Payment Successful!</div>
+                <div style="color:var(--text-secondary);margin:0.2rem 0 1rem;">Your Premium subscription is now active.</div>
+                <div style="background:rgba(179,136,255,0.08);padding:0.6rem;border-radius:40px;display:inline-block;border:1px solid var(--accent);font-weight:600;color:#d4c2ff;">💎 PREMIUM ACTIVATED</div>
+                <div style="margin:0.8rem 0;font-size:0.95rem;">${appState.selectedPlan === 'monthly' ? 'Monthly Premium' : 'Yearly Premium'} — ₹${appState.selectedPrice} / ${appState.selectedPlan === 'monthly' ? 'month' : 'year'}</div>
+                <button class="btn-primary" id="startCalcBtn">Start Unlimited Calculations</button>
+            </div>
+        `;
+        document.getElementById('startCalcBtn').addEventListener('click', () => {
+            closeModal();
+            updatePremiumUI();
+            appState.calculationCount = 0; // reset counter for premium
+            saveState();
+        });
+        updatePremiumUI();
+    }
+
+    function paymentFailure() {
+        modalContent.innerHTML = `
+            <div class="text-center" style="padding:1rem 0;">
+                <div style="font-size:4rem;color:#ff7a7a;">❌</div>
+                <div style="font-size:2rem;font-weight:700;margin:0.2rem 0;">Payment Failed</div>
+                <div style="color:var(--text-secondary);">We couldn't complete the payment. Please try again.</div>
+                <div class="flex-btns" style="justify-content:center;margin-top:1.2rem;">
+                    <button class="btn-primary" id="retryPayBtn">Try Again</button>
+                    <button class="btn-secondary" id="failBackBtn">Back to Payment Methods</button>
+                </div>
+            </div>
+        `;
+        document.getElementById('retryPayBtn').addEventListener('click', () => {
+            appState.paymentMethod = appState.paymentMethod || 'card';
+            renderPaymentMethod();
+        });
+        document.getElementById('failBackBtn').addEventListener('click', () => {
+            appState.paymentMethod = null;
+            renderPaymentMethod();
+        });
+    }
+
+    // ---------- HISTORY ----------
+    function renderHistory() {
+        const list = document.getElementById('historyList');
+        if (!list) return;
+        const items = appState.history;
+        if (!items.length) {
+            list.innerHTML = `<div class="history-empty">No calculations yet.</div>`;
+            return;
+        }
+        list.innerHTML = items.map(h => `
+            <div class="history-item"><span class="h-expr">${h.expression}</span><span class="h-wrong">= ${h.wrongAnswer}</span></div>
+        `).join('');
+    }
+
+    // toggle history
+    document.getElementById('historyToggle')?.addEventListener('click', () => {
+        document.getElementById('historyList').classList.toggle('open');
+    });
+    document.getElementById('clearHistoryBtn')?.addEventListener('click', () => {
+        appState.history = [];
+        saveState();
+        renderHistory();
+    });
+
+    // ---------- CALCULATOR INPUT ----------
+    function handleDigit(val) {
+        if (appState.justEvaluated) {
+            appState.currentExpression = '';
+            appState.justEvaluated = false;
+        }
+        appState.currentExpression += val;
+        updateDisplay();
+    }
+
+    function handleOperator(op) {
+        if (appState.justEvaluated) {
+            appState.justEvaluated = false;
+        }
+        appState.currentExpression += ' ' + op + ' ';
+        updateDisplay();
+    }
+
+    function handleClear() {
+        appState.currentExpression = '';
+        appState.justEvaluated = false;
+        ansDisplay.textContent = '—';
+        updateDisplay();
+    }
+
+    function handleDelete() {
+        appState.currentExpression = appState.currentExpression.slice(0, -1);
+        updateDisplay();
+    }
+
+    // ---------- EVENT BINDING ----------
+    document.querySelectorAll('.calc-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const action = btn.dataset.action;
+            const val = btn.dataset.value;
+            if (action === 'digit') handleDigit(val);
+            else if (action === 'operator') handleOperator(val);
+            else if (action === 'clear') handleClear();
+            else if (action === 'delete') handleDelete();
+            else if (action === 'percent') handleDigit('%');
+            else if (action === 'equals') handleEquals();
+        });
+    });
+
+    // keyboard support
+    document.addEventListener('keydown', (e) => {
+        const key = e.key;
+        if (key >= '0' && key <= '9') { e.preventDefault(); handleDigit(key); }
+        else if (key === '.') { e.preventDefault(); handleDigit('.'); }
+        else if (key === '+') { e.preventDefault(); handleOperator('+'); }
+        else if (key === '-') { e.preventDefault(); handleOperator('−'); }
+        else if (key === '*') { e.preventDefault(); handleOperator('×'); }
+        else if (key === '/') { e.preventDefault(); handleOperator('÷'); }
+        else if (key === '%') { e.preventDefault(); handleDigit('%'); }
+        else if (key === 'Enter' || key === '=') { e.preventDefault(); handleEquals(); }
+        else if (key === 'Backspace') { e.preventDefault(); handleDelete(); }
+        else if (key === 'Escape') { e.preventDefault(); closeModal(); }
+        else if (key === 'c' || key === 'C') { handleClear(); }
+    });
+
+    // dev reset
+    document.getElementById('devReset').addEventListener('click', () => {
+        if (confirm('Reset demo state?')) {
+            localStorage.removeItem('wrongcalc_state');
+            location.reload();
+        }
+    });
+
+    // ---------- INIT ----------
+    loadState();
+    updatePremiumUI();
+    updateDisplay();
+    renderHistory();
+    if (appState.isSubscribed) {
+        appState.calculationCount = 0;
+        saveState();
+    }
+</script>
+</body>
+</html>
