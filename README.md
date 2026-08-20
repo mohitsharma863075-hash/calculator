@@ -1,4 +1,4 @@
-WrongCalc — A fun entertainment calculator that intentionally generates incorrect answers with a free trial, subscription plans, Card/UPI payment demo, and Premium unlock system.
+#WrongCalc — A fun entertainment calculator that intentionally generates incorrect answers with a free trial, subscription plans, Card/UPI payment demo, and Premium unlock system.
 
 GitHub About / README Description
 
